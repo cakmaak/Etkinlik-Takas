@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Kayıt Ol - Etkinlik Takas{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>Kayıt Ol</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="submit-button">Kayıt Ol</button>
+        </form>
+        <p class="auth-link">Zaten hesabınız var mı? <a href="{% url 'login' %}">Giriş Yap</a></p>
+    </div>
+</div>
+{% endblock %} 

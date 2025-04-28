@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Favorilerim - Etkinlik Takas{% endblock %}
+
+{% block content %}
+<section class="favorites-section">
+    <h2>Favori Biletlerim</h2>
+    <div class="tickets-grid">
+        {% for favorite in favorites %}
+        <div class="ticket-card">
+            <div class="ticket-owner">{{ favorite.ticket.user.username }}</div>
+            <img src="{{ favorite.ticket.resim.url }}" alt="{{ favorite.ticket.etkinlik_adi }}">
+            <div class="ticket-info">
+                <h3>{{ favorite.ticket.etkinlik_adi }}</h3>
+                <p>Kategori: {{ favorite.ticket.get_kategori_display }}</p>
+                <p>Tarih: {{ favorite.ticket.tarih|date:"d.m.Y" }}</p>
+                <p>Fiyat: {{ favorite.ticket.fiyat }} ₺</p>
+            </div>
+            <button class="like-button active" onclick="toggleFavorite({{ favorite.ticket.id }})">❤️</button>
+            {% if favorite.ticket.user != user %}
+            <button class="offer-button" onclick="showOfferModal({{ favorite.ticket.id }})">Teklif Ver</button>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="no-tickets">Henüz favori biletiniz bulunmuyor.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Teklif Modal -->
+<div id="offerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teklif Ver</h2>
+            <button class="modal-close" onclick="closeOfferModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="offerForm" onsubmit="sendOffer(event)">
+                <input type="hidden" id="ticketId" name="ticketId">
+                <div class="form-group">
+                    <label for="amount">Teklif Tutarı (₺)</label>
+                    <input type="number" id="amount" name="amount" min="1" step="0.01" required>
+                </div>
+                <button type="submit" class="submit-button">Teklif Gönder</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFavorite(ticketId) {
+    window.location.href = `/toggle-favorite/${ticketId}/`;
+}
+
+function showOfferModal(ticketId) {
+    document.getElementById('ticketId').value = ticketId;
+    document.getElementById('offerModal').style.display = 'block';
+}
+
+function closeOfferModal() {
+    document.getElementById('offerModal').style.display = 'none';
+}
+
+function sendOffer(event) {
+    event.preventDefault();
+    const ticketId = document.getElementById('ticketId').value;
+    const amount = document.getElementById('amount').value;
+    window.location.href = `/send-offer/${ticketId}/?amount=${amount}`;
+}
+</script>
+{% endblock %} 

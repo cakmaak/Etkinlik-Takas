@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Etkinlik Takas Platformu{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <a href="{% url 'home' %}" style="text-decoration: none; color: inherit;">
+                    <h1>Etkinlik Takas</h1>
+                </a>
+            </div>
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                <li>
+                    <div class="profile-menu" onclick="toggleProfileModal()">
+                        <div class="profile-avatar">{{ user.username|first|upper }}</div>
+                        <span class="profile-name">{{ user.username }}</span>
+                        <span class="profile-menu-icon">▼</span>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="{% url 'my_tickets' %}">Biletlerim</a></li>
+                <li class="nav-item"><a href="{% url 'favorites' %}">Favorilerim</a></li>
+                <li class="nav-item"><a href="{% url 'add_ticket' %}">Bilet Ekle</a></li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">Çıkış Yap</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item"><a href="{% url 'login' %}">Giriş Yap</a></li>
+                <li class="nav-item"><a href="{% url 'signup' %}">Kayıt Ol</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Etkinlik Takas</h3>
+                <p>Güvenli ve kolay bilet takası için buradayız!</p>
+            </div>
+            <div class="footer-section">
+                <h3>Hızlı Bağlantılar</h3>
+                <ul>
+                    <li><a href="{% url 'home' %}">Ana Sayfa</a></li>
+                    <li><a href="{% url 'my_tickets' %}">Biletlerim</a></li>
+                    <li><a href="{% url 'favorites' %}">Favorilerim</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Etkinlik Takas Platformu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <!-- Profil Modal -->
+    <div class="overlay" id="overlay"></div>
+    <div class="profile-modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Profilim</h2>
+                <button class="modal-close" onclick="toggleProfileModal()">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-header">
+                    <div class="profile-header-avatar">{{ user.username|first|upper }}</div>
+                    <div class="profile-header-info">
+                        <h3>{{ user.username }}</h3>
+                        <p>@{{ user.username }}</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="ticketCount">0</div>
+                        <div class="stat-label">Biletlerim</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="offerCount">0</div>
+                        <div class="stat-label">Teklifler</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favoriteCount">0</div>
+                        <div class="stat-label">Favoriler</div>
+                    </div>
+                </div>
+
+                <div class="profile-sections">
+                    <div class="profile-section offers-section">
+                        <h3 class="section-title">Teklifler</h3>
+                        <div class="offers-tabs">
+                            <button class="offers-tab active" onclick="showOffers('incoming')">Gelen Teklifler</button>
+                            <button class="offers-tab" onclick="showOffers('outgoing')">Gönderilen Teklifler</button>
+                        </div>
+                        <div class="offer-list" id="offersList">
+                            <!-- Teklifler buraya eklenecek -->
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h3 class="section-title">Aktif Biletlerim</h3>
+                        <div class="tickets-grid" id="my-tickets-container">
+                            <!-- Kullanıcının kendi biletleri buraya eklenecek -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% load static %}
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

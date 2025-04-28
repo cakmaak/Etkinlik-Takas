@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Kayıt Ol - Etkinlik Takas{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Kayıt Ol</h2>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+            <div class="error-message">
+                {% for error in field.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="submit-button">Kayıt Ol</button>
+    </form>
+    <p class="auth-link">Zaten hesabınız var mı? <a href="{% url 'login' %}">Giriş Yap</a></p>
+</div>
+{% endblock %} 

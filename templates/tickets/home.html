@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ana Sayfa - Etkinlik Takas{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h2>Etkinlik Biletlerini Takas Et!</h2>
+    <p>Katılamadığın etkinliklerin biletlerini güvenle takas edebilir veya satabilirsin.</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'add_ticket' %}" class="cta-button">Bilet Ekle</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="cta-button">Giriş Yap</a>
+    {% endif %}
+</div>
+
+<section class="categories-section">
+    <h2>Kategoriler</h2>
+    <div class="category-grid">
+        <div class="category-card" onclick="filterTickets('konser')">
+            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format" alt="Konser">
+            <h3>Konser</h3>
+        </div>
+        <div class="category-card" onclick="filterTickets('tiyatro')">
+            <img src="https://images.unsplash.com/photo-1503095396549-807759245b35?w=500&auto=format" alt="Tiyatro">
+            <h3>Tiyatro</h3>
+        </div>
+        <div class="category-card" onclick="filterTickets('sinema')">
+            <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format" alt="Sinema">
+            <h3>Sinema</h3>
+        </div>
+        <div class="category-card" onclick="filterTickets('spor')">
+            <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format" alt="Spor">
+            <h3>Spor</h3>
+        </div>
+    </div>
+</section>
+
+<section class="tickets-section">
+    <h2>Biletler</h2>
+    <div class="tickets-grid">
+        {% for ticket in tickets %}
+        <div class="ticket-card">
+            <div class="ticket-owner">{{ ticket.user.username }}</div>
+            <img src="{{ ticket.resim.url }}" alt="{{ ticket.etkinlik_adi }}">
+            <div class="ticket-info">
+                <h3>{{ ticket.etkinlik_adi }}</h3>
+                <p>Kategori: {{ ticket.get_kategori_display }}</p>
+                <p>Tarih: {{ ticket.tarih|date:"d.m.Y" }}</p>
+                <p>Fiyat: {{ ticket.fiyat }} ₺</p>
+            </div>
+            {% if user.is_authenticated %}
+                {% if ticket.user == user %}
+                <button class="delete-button" onclick="deleteTicket({{ ticket.id }})">Bileti Sil</button>
+                {% else %}
+                <button class="like-button" onclick="toggleFavorite({{ ticket.id }})">
+                    {% if ticket in user.favorite_set.all %}
+                    ❤️
+                    {% else %}
+                    🤍
+                    {% endif %}
+                </button>
+                <button class="offer-button" onclick="showOfferModal({{ ticket.id }})">Teklif Ver</button>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="no-tickets">Henüz bilet bulunmuyor.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Teklif Modal -->
+<div id="offerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teklif Ver</h2>
+            <button class="modal-close" onclick="closeOfferModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="offerForm" onsubmit="sendOffer(event)">
+                <input type="hidden" id="ticketId" name="ticketId">
+                <div class="form-group">
+                    <label for="amount">Teklif Tutarı (₺)</label>
+                    <input type="number" id="amount" name="amount" min="1" step="0.01" required>
+                </div>
+                <button type="submit" class="submit-button">Teklif Gönder</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterTickets(category) {
+    window.location.href = `/?category=${category}`;
+}
+
+function deleteTicket(ticketId) {
+    if (confirm('Bu bileti silmek istediğinizden emin misiniz?')) {
+        window.location.href = `/delete-ticket/${ticketId}/`;
+    }
+}
+
+function toggleFavorite(ticketId) {
+    window.location.href = `/toggle-favorite/${ticketId}/`;
+}
+
+function showOfferModal(ticketId) {
+    document.getElementById('ticketId').value = ticketId;
+    document.getElementById('offerModal').style.display = 'block';
+}
+
+function closeOfferModal() {
+    document.getElementById('offerModal').style.display = 'none';
+}
+
+function sendOffer(event) {
+    event.preventDefault();
+    const ticketId = document.getElementById('ticketId').value;
+    const amount = document.getElementById('amount').value;
+    window.location.href = `/send-offer/${ticketId}/?amount=${amount}`;
+}
+</script>
+{% endblock %} 

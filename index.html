@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etkinlik Takas Platformu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Giriş Yap</h2>
+                <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="username">Kullanıcı Adı</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Şifre</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="submit-button">Giriş Yap</button>
+                </form>
+                <p class="register-link">Hesabınız yok mu? <a href="#" onclick="showRegisterModal()">Kayıt Ol</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="register-modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kayıt Ol</h2>
+                <button class="modal-close" onclick="closeRegisterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="reg-username">Kullanıcı Adı</label>
+                        <input type="text" id="reg-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">E-posta</label>
+                        <input type="email" id="reg-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Şifre</label>
+                        <input type="password" id="reg-password" name="password" required>
+                    </div>
+                    <button type="submit" class="submit-button">Kayıt Ol</button>
+                </form>
+                <p class="login-link">Zaten hesabınız var mı? <a href="#" onclick="showLoginModal()">Giriş Yap</a></p>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Etkinlik Takas</h1>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <div class="profile-menu" onclick="toggleProfileModal()">
+                        <div class="profile-avatar">A</div>
+                        <span class="profile-name">Kullanıcı</span>
+                        <span class="profile-menu-icon">▼</span>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="#biletler">Biletler</a></li>
+                <li class="nav-item"><a href="#favoriler">Favorilerim</a></li>
+                <li class="nav-item"><a href="#nasil-calisir">İletişim</a></li>
+            </ul>
+        </nav>
+        <div class="hero-section">
+            <h2>Etkinlik Biletlerini Takas Et!</h2>
+            <p>Katılamadığın etkinliklerin biletlerini güvenle takas edebilir veya satabilirsin.</p>
+            <button class="cta-button" onclick="scrollToUpload()">Hemen Başla</button>
+        </div>
+    </header>
+
+    <main>
+        <section id="kategoriler" class="categories-section">
+            <h2>Kategoriler</h2>
+            <div class="category-grid">
+                <div class="category-card" onclick="filterTicketsByCategory('konser')">
+                    <img src="" alt="Konser" id="konser-kategori-img">
+                    <h3>Konser</h3>
+                </div>
+                <div class="category-card" onclick="filterTicketsByCategory('tiyatro')">
+                    <img src="" alt="Tiyatro" id="tiyatro-kategori-img">
+                    <h3>Tiyatro</h3>
+                </div>
+                <div class="category-card" onclick="filterTicketsByCategory('sinema')">
+                    <img src="" alt="Sinema" id="sinema-kategori-img">
+                    <h3>Sinema</h3>
+                </div>
+                <div class="category-card" onclick="filterTicketsByCategory('spor')">
+                    <img src="" alt="Spor" id="spor-kategori-img">
+                    <h3>Spor</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Yan Panel -->
+        <div class="overlay" id="overlay" onclick="toggleProfileModal()"></div>
+        <div class="profile-modal" id="profileModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Profilim</h2>
+                    <button class="modal-close" onclick="toggleProfileModal()">&times;</button>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-header">
+                        <div class="profile-header-avatar">A</div>
+                        <div class="profile-header-info">
+                            <h3>Ahmet Yılmaz</h3>
+                            <p>@ahmetyilmaz</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="ticketCount">0</div>
+                            <div class="stat-label">Biletlerim</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="offerCount">0</div>
+                            <div class="stat-label">Teklifler</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="favoriteCount">0</div>
+                            <div class="stat-label">Favoriler</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-sections">
+                        <div class="profile-section offers-section">
+                            <h3 class="section-title">Teklifler</h3>
+                            <div class="offers-tabs">
+                                <button class="offers-tab active" onclick="showOffers('incoming')">Gelen Teklifler</button>
+                                <button class="offers-tab" onclick="showOffers('outgoing')">Gönderilen Teklifler</button>
+                            </div>
+                            <div class="offer-list" id="offersList">
+                                <!-- Teklifler buraya eklenecek -->
+                            </div>
+                        </div>
+
+                        <div class="profile-section">
+                            <h3 class="section-title">Aktif Biletlerim</h3>
+                            <div class="tickets-grid" id="my-tickets-container">
+                                <!-- Kullanıcının kendi biletleri buraya eklenecek -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biletler Bölümü -->
+        <section id="biletler" class="tickets-section">
+            <h2>Biletler</h2>
+            <div class="tickets-grid" id="tickets-container">
+                <!-- Biletler buraya JavaScript ile eklenecek -->
+            </div>
+        </section>
+
+        <!-- Favoriler Bölümü -->
+        <section id="favoriler" class="favorites-section">
+            <h2>Favori Biletlerim</h2>
+            <div class="tickets-grid" id="favorites-container">
+                <!-- Favori biletler buraya eklenecek -->
+            </div>
+        </section>
+
+        <section id="bilet-yukle" class="upload-section">
+            <h2>Bilet Yükle</h2>
+            <form class="upload-form" id="ticket-form" onsubmit="saveTicket(event)">
+                <div class="form-group">
+                    <label for="etkinlik-adi">Etkinlik Adı</label>
+                    <input type="text" id="etkinlik-adi" name="etkinlik-adi" required>
+                </div>
+                <div class="form-group">
+                    <label for="kategori">Kategori</label>
+                    <select id="kategori" name="kategori" required>
+                        <option value="">Seçiniz</option>
+                        <option value="konser">Konser</option>
+                        <option value="tiyatro">Tiyatro</option>
+                        <option value="sinema">Sinema</option>
+                        <option value="spor">Spor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tarih">Etkinlik Tarihi</label>
+                    <input type="date" id="tarih" name="tarih" required>
+                </div>
+                <div class="form-group">
+                    <label for="fiyat">Fiyat (₺)</label>
+                    <input type="number" id="fiyat" name="fiyat" required>
+                </div>
+                <div class="form-group">
+                    <label for="bilet-foto">Bilet Fotoğrafı</label>
+                    <input type="file" id="bilet-foto" name="bilet-foto" accept="image/*" required>
+                </div>
+                <button type="submit" class="submit-button">Bilet Yükle</button>
+            </form>
+        </section>
+
+        <section id="nasil-calisir" class="how-it-works">
+            <h2>Nasıl Çalışır?</h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Bilet Yükle</h3>
+                    <p>Takas etmek istediğin bileti platforma yükle</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Takas Bul</h3>
+                    <p>İlgilendiğin etkinlik biletlerini incele</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>İletişime Geç</h3>
+                    <p>Diğer kullanıcılarla mesajlaş</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Takası Tamamla</h3>
+                    <p>Güvenli takas sistemini kullanarak işlemi tamamla</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Etkinlik Takas</h3>
+                <p>Güvenli ve kolay bilet takası için buradayız!</p>
+            </div>
+            <div class="footer-section">
+                <h3>Hızlı Bağlantılar</h3>
+                <ul>
+                    <li><a href="#anasayfa">Ana Sayfa</a></li>
+                    <li><a href="#etkinlikler">Etkinlikler</a></li>
+                    <li><a href="#biletler">Biletler</a></li>
+                    <li><a href="#iletisim">İletişim</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>İletişim</h3>
+                <p>Email: info@etkinliktakas.com</p>
+                <p>Tel: +90 555 555 55 55</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Etkinlik Takas Platformu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="user.js"></script>
+    <script src="ticket.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeBiletler();
+            initializeFavorites();
+            // Kategori görsellerini ayarla
+            document.getElementById('konser-kategori-img').src = IMAGES.konser;
+            document.getElementById('tiyatro-kategori-img').src = IMAGES.tiyatro;
+            document.getElementById('sinema-kategori-img').src = IMAGES.sinema;
+            document.getElementById('spor-kategori-img').src = IMAGES.spor;
+            // Kullanıcı bilgilerini ve biletleri başlat
+            showUserInfo();
+            showAllTickets();
+            showMyTickets();
+            showFavorites();
+        });
+
+        // Profil menüsünü dinle
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (profileMenu) {
+                profileMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleProfileModal();
+                });
+            }
+        });
+
+        function toggleProfileModal() {
+            document.getElementById('profileModal').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function scrollToUpload() {
+            document.getElementById('bilet-yukle').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showAllTickets() {
+            const allTickets = JSON.parse(localStorage.getItem('biletler')) || [];
+            displayTickets(allTickets);
+            updateActiveCategory('all');
+        }
+
+        function filterTicketsByCategory(category) {
+            const allTickets = JSON.parse(localStorage.getItem('biletler')) || [];
+            
+            if (category === 'all') {
+                displayTickets(allTickets);
+            } else {
+                const filteredTickets = allTickets.filter(ticket => 
+                    ticket.kategori.toLowerCase() === category.toLowerCase()
+                );
+                displayTickets(filteredTickets);
+            }
+
+            // Aktif kategoriyi güncelle
+            updateActiveCategory(category);
+
+            // Biletler bölümüne otomatik kaydır
+            document.getElementById('biletler').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayTickets(tickets) {
+            const ticketsContainer = document.getElementById('tickets-container');
+            if (!ticketsContainer) return; // Container yoksa işlemi durdur
+            
+            ticketsContainer.innerHTML = '';
+            
+            if (tickets.length === 0) {
+                ticketsContainer.innerHTML = '<p class="no-tickets">Bu kategoride henüz bilet bulunmuyor.</p>';
+                return;
+            }
+
+            tickets.forEach(ticket => {
+                const ticketCard = createTicketCard(ticket, ticket.userId === currentUserId);
+                ticketsContainer.innerHTML += ticketCard;
+            });
+        }
+
+        function updateActiveCategory(category) {
+            // Tüm kategori kartlarından active sınıfını kaldır
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Seçili kategoriye active sınıfını ekle
+            if (category === 'all') {
+                return;
+            }
+            const activeCard = document.querySelector(`.category-card[onclick*="${category}"]`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+        }
+    </script>
+    <script>// Görsel URL'leri
+        const IMAGES = {
+            // Kategori görselleri
+            konser: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format",
+            tiyatro: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=500&auto=format",
+            sinema: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format",
+            spor: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format",
+            
+            // Örnek bilet görselleri
+            dumanKonseri: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=500&auto=format",
+            hamlet: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=500&auto=format",
+            derbi: "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=500&auto=format",
+            basketbol: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500&auto=format"
+        };
+        
+        // Örnek biletler verisi
+        const ornekBiletler = [
+            {
+                id: 1,
+                etkinlikAdi: "Duman Konseri",
+                kategori: "konser",
+                tarih: "2024-04-15",
+                fiyat: 450,
+                resim: IMAGES.dumanKonseri,
+                userId: "SYSTEM"
+            },
+            {
+                id: 2,
+                etkinlikAdi: "Hamlet",
+                kategori: "tiyatro",
+                tarih: "2024-04-20",
+                fiyat: 200,
+                resim: IMAGES.hamlet,
+                userId: "SYSTEM"
+            },
+            {
+                id: 3,
+                etkinlikAdi: "Fenerbahçe vs Galatasaray",
+                kategori: "spor",
+                tarih: "2024-05-01",
+                fiyat: 750,
+                resim: IMAGES.derbi,
+                userId: "SYSTEM"
+            },
+            {
+                id: 4,
+                etkinlikAdi: "Türkiye vs Yunanistan Basketbol Maçı",
+                kategori: "spor",
+                tarih: "2024-05-15",
+                fiyat: 300,
+                resim: IMAGES.basketbol,
+                userId: "SYSTEM"
+            }
+        ];
+        
+        // Sayfa yüklendiğinde örnek biletleri localStorage'a kaydet
+        function initializeBiletler() {
+            if (!localStorage.getItem('biletler')) {
+                localStorage.setItem('biletler', JSON.stringify(ornekBiletler));
+            }
+        }
+        
+        // Biletleri görüntüleme fonksiyonu
+        function biletleriGoster() {
+            const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+            displayTickets(biletler);
+        }
+        
+        // Dosyayı Base64'e çeviren yardımcı fonksiyon
+        function dosyayiBase64eCevir(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Yeni bilet kaydetme fonksiyonu
+        async function saveTicket(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+            
+            const fileInput = form.querySelector('#bilet-foto');
+            let resimUrl;
+            
+            if (fileInput.files.length > 0) {
+                try {
+                    resimUrl = await dosyayiBase64eCevir(fileInput.files[0]);
+                } catch (error) {
+                    console.error('Dosya yüklenirken hata oluştu:', error);
+                    resimUrl = `https://via.placeholder.com/300x200?text=${encodeURIComponent(form.querySelector('#etkinlik-adi').value)}`;
+                }
+            } else {
+                resimUrl = `https://via.placeholder.com/300x200?text=${encodeURIComponent(form.querySelector('#etkinlik-adi').value)}`;
+            }
+        
+            const yeniBilet = {
+                id: Date.now(),
+                etkinlikAdi: form.querySelector('#etkinlik-adi').value,
+                kategori: form.querySelector('#kategori').value,
+                tarih: form.querySelector('#tarih').value,
+                fiyat: parseFloat(form.querySelector('#fiyat').value),
+                resim: resimUrl,
+                userId: currentUserId
+            };
+        
+            biletler.push(yeniBilet);
+            localStorage.setItem('biletler', JSON.stringify(biletler));
+            
+            // Başarı mesajını göster
+            showSuccessMessage('Biletiniz başarıyla yüklendi!');
+            
+            // Tüm görünümleri güncelle
+            showAllTickets();
+            showMyTickets();
+            showFavorites();
+            form.reset();
+        }
+        
+        // Başarı mesajı gösterme fonksiyonu
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            // Mesajı sayfaya ekle
+            document.body.appendChild(successDiv);
+            
+            // 3 saniye sonra mesajı kaldır
+            setTimeout(() => {
+                successDiv.classList.add('fade-out');
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 500);
+            }, 3000);
+        }
+        
+        // Sayfa yüklendiğinde çalışacak favori kontrol fonksiyonu
+        function initializeFavorites() {
+            favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            showFavorites();
+        }
+        
+        // Bilet silme fonksiyonu
+        function biletSil(id) {
+            if (confirm('Bu bileti silmek istediğinizden emin misiniz?')) {
+                let biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+                biletler = biletler.filter(bilet => bilet.id !== id);
+                localStorage.setItem('biletler', JSON.stringify(biletler));
+                biletleriGoster();
+            }
+        }
+        
+        // Bilet yükleme formuna kaydırma
+        function scrollToUpload() {
+            document.getElementById('bilet-yukle').scrollIntoView({ behavior: 'smooth' });
+        }  </script>
+   
+    <script> 
+        function toggleProfileModal() {
+            const modal = document.querySelector('.profile-modal');
+            const overlay = document.querySelector('.overlay');
+            
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            } else {
+                modal.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        // Profil sekmesi değiştirme fonksiyonu
+        function changeOfferTab(tabName) {
+            const tabs = document.querySelectorAll('.offers-tab');
+            const contents = document.querySelectorAll('.offer-content');
+            
+            tabs.forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            contents.forEach(content => {
+                if (content.id === tabName) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+        }
+        
+        // Sayfa yüklendiğinde varsayılan sekme
+        document.addEventListener('DOMContentLoaded', () => {
+            changeOfferTab('active-offers');
+        }); 
+    </script>
+
+<script>
+    // Bilet işlemleri için yardımcı fonksiyonlar
+
+// Bilet kartı oluşturma fonksiyonu
+function createTicketCard(bilet, isOwner) {
+    const isLiked = favorites.includes(bilet.id);
+    const deleteButton = isOwner ? `<button class="delete-button" onclick="event.stopPropagation(); biletSil(${bilet.id})">Bileti Sil</button>` : '';
+    const ownerLabel = `<div class="ticket-owner">${bilet.userId === currentUserId ? 'Benim Biletim' : 'Diğer Kullanıcı'}</div>`;
+    const likeButton = !isOwner ? `<button class="like-button ${isLiked ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${bilet.id})">
+        ${isLiked ? '❤️' : '🤍'}
+    </button>` : '';
+    
+    return `
+        <div class="ticket-card" onclick="showTicketDetails(${JSON.stringify(bilet).replace(/"/g, '&quot;')})">
+            ${ownerLabel}
+            <img src="${bilet.resim}" alt="${bilet.etkinlikAdi}">
+            <div class="ticket-info">
+                <h3>${bilet.etkinlikAdi}</h3>
+                <p>Kategori: ${bilet.kategori.charAt(0).toUpperCase() + bilet.kategori.slice(1)}</p>
+                <p>Tarih: ${new Date(bilet.tarih).toLocaleDateString('tr-TR')}</p>
+                <p>Fiyat: ${bilet.fiyat} ₺</p>
+            </div>
+            ${deleteButton}
+            ${likeButton}
+        </div>
+    `;
+}
+
+// Biletleri görüntüleme fonksiyonu
+function showAllTickets() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    displayTickets(biletler);
+}
+
+// Biletleri listeleme fonksiyonu
+function displayTickets(tickets) {
+    const ticketsContainer = document.getElementById('tickets-container');
+    if (!ticketsContainer) return;
+    
+    ticketsContainer.innerHTML = '';
+    
+    if (tickets.length === 0) {
+        ticketsContainer.innerHTML = '<p class="no-tickets">Bu kategoride henüz bilet bulunmuyor.</p>';
+        return;
+    }
+
+    tickets.forEach(ticket => {
+        const ticketCard = createTicketCard(ticket, ticket.userId === currentUserId);
+        ticketsContainer.innerHTML += ticketCard;
+    });
+}
+
+// Kullanıcının kendi biletlerini gösterme
+function showMyTickets() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const container = document.getElementById('my-tickets-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const myTickets = biletler.filter(bilet => bilet.userId === currentUserId);
+    
+    if (myTickets.length === 0) {
+        container.innerHTML = '<p class="no-tickets">Henüz biletiniz bulunmuyor.</p>';
+        return;
+    }
+
+    myTickets.forEach(bilet => {
+        const biletHTML = createTicketCard(bilet, true);
+        container.innerHTML += biletHTML;
+    });
+}
+
+// Favori biletleri gösterme
+function showFavorites() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const container = document.getElementById('favorites-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const favoriteTickets = biletler.filter(bilet => favorites.includes(bilet.id));
+    
+    if (favoriteTickets.length === 0) {
+        container.innerHTML = '<p class="no-tickets">Henüz favori biletiniz bulunmuyor.</p>';
+        return;
+    }
+
+    favoriteTickets.forEach(bilet => {
+        const biletHTML = createTicketCard(bilet, bilet.userId === currentUserId);
+        container.innerHTML += biletHTML;
+    });
+}
+
+// Yeni bilet kaydetme fonksiyonu
+async function saveTicket(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    
+    const fileInput = form.querySelector('#bilet-foto');
+    let resimUrl;
+    
+    if (fileInput.files.length > 0) {
+        try {
+            // Resmi optimize et ve boyutunu küçült
+            resimUrl = await optimizeImage(fileInput.files[0]);
+        } catch (error) {
+            console.error('Resim optimize edilirken hata oluştu:', error);
+            resimUrl = `https://via.placeholder.com/300x200?text=${encodeURIComponent(form.querySelector('#etkinlik-adi').value)}`;
+        }
+    } else {
+        resimUrl = `https://via.placeholder.com/300x200?text=${encodeURIComponent(form.querySelector('#etkinlik-adi').value)}`;
+    }
+
+    const yeniBilet = {
+        id: Date.now(),
+        etkinlikAdi: form.querySelector('#etkinlik-adi').value,
+        kategori: form.querySelector('#kategori').value,
+        tarih: form.querySelector('#tarih').value,
+        fiyat: parseFloat(form.querySelector('#fiyat').value),
+        resim: resimUrl,
+        userId: currentUserId
+    };
+
+    try {
+        // Eski biletleri temizle (en son 50 bilet tut)
+        if (biletler.length >= 50) {
+            biletler.splice(0, biletler.length - 49);
+        }
+        
+        biletler.push(yeniBilet);
+        localStorage.setItem('biletler', JSON.stringify(biletler));
+        
+        showSuccessMessage('Biletiniz başarıyla yüklendi!');
+        updateAllViews();
+        form.reset();
+    } catch (error) {
+        console.error('Bilet kaydedilirken hata oluştu:', error);
+        showErrorMessage('Bilet kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+}
+
+// Resmi optimize etme fonksiyonu
+function optimizeImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Maksimum boyutları belirle
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 600;
+                
+                let width = img.width;
+                let height = img.height;
+                
+                // Boyutları orantılı olarak küçült
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                if (height > MAX_HEIGHT) {
+                    width *= MAX_HEIGHT / height;
+                    height = MAX_HEIGHT;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // JPEG formatında ve düşük kalitede kaydet
+                const optimizedImage = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(optimizedImage);
+            };
+            img.onerror = reject;
+        };
+        reader.onerror = reject;
+    });
+}
+
+// Tüm görünümleri güncelleme fonksiyonu
+function updateAllViews() {
+    showAllTickets();
+    showMyTickets();
+    showFavorites();
+}
+
+// Başarı mesajı gösterme fonksiyonu
+function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
+}
+
+// Hata mesajı gösterme fonksiyonu
+function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000);
+}
+
+// Bilet silme fonksiyonu
+function biletSil(id) {
+    let biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const bilet = biletler.find(b => b.id === id);
+    
+    if (bilet && bilet.userId === currentUserId) {
+        if (confirm('Bu bileti silmek istediğinizden emin misiniz?')) {
+            biletler = biletler.filter(b => b.id !== id);
+            localStorage.setItem('biletler', JSON.stringify(biletler));
+            updateAllViews();
+            showSuccessMessage('Bilet başarıyla silindi!');
+        }
+    } else {
+        showErrorMessage('Bu bileti silme yetkiniz yok!');
+    }
+}
+
+// Favori ekleme/çıkarma fonksiyonu
+function toggleFavorite(biletId) {
+    const index = favorites.indexOf(biletId);
+    if (index === -1) {
+        favorites.push(biletId);
+        showSuccessMessage('Bilet favorilere eklendi!');
+    } else {
+        favorites.splice(index, 1);
+        showSuccessMessage('Bilet favorilerden çıkarıldı!');
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    updateAllViews();
+}
+
+// Teklifleri görüntüleme fonksiyonunu güncelle
+function showOffers(type = 'incoming', ticketId = null) {
+    const offersList = document.getElementById('offersList');
+    if (!offersList) return;
+    
+    const tabButtons = document.querySelectorAll('.offers-tab');
+    if (tabButtons) {
+        tabButtons.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        const activeTab = document.querySelector(`.offers-tab[onclick*="${type}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+    }
+
+    const offers = JSON.parse(localStorage.getItem('offers')) || [];
+    const tickets = JSON.parse(localStorage.getItem('biletler')) || [];
+    
+    // Teklifleri filtrele
+    let filteredOffers = offers.filter(offer => {
+        const baseFilter = type === 'incoming' ? 
+            offer.toUserId === currentUserId : 
+            offer.fromUserId === currentUserId;
+
+        // Eğer ticketId belirtilmişse, sadece o bilete ait teklifleri göster
+        if (ticketId !== null) {
+            return baseFilter && offer.ticketId === ticketId;
+        }
+        return baseFilter;
+    });
+
+    if (filteredOffers.length === 0) {
+        offersList.innerHTML = `<div class="no-offers">${type === 'incoming' ? 'Henüz gelen teklifiniz yok' : 'Henüz gönderdiğiniz teklif yok'}</div>`;
+        return;
+    }
+
+    offersList.innerHTML = filteredOffers.map(offer => {
+        const ticket = tickets.find(t => t.id === offer.ticketId);
+        if (!ticket) return '';
+
+        const statusText = {
+            'pending': 'Bekliyor',
+            'accepted': 'Kabul Edildi',
+            'rejected': 'Reddedildi'
+        }[offer.status];
+
+        const statusClass = {
+            'pending': 'pending',
+            'accepted': 'accepted',
+            'rejected': 'rejected'
+        }[offer.status];
+
+        const actions = type === 'incoming' && offer.status === 'pending' ? `
+            <div class="offer-actions">
+                <button class="offer-action-btn offer-accept" onclick="handleOffer(${offer.id}, 'accept')">Kabul Et</button>
+                <button class="offer-action-btn offer-reject" onclick="handleOffer(${offer.id}, 'reject')">Reddet</button>
+            </div>
+        ` : '';
+
+        return `
+            <div class="offer-item">
+                <img src="${ticket.resim}" alt="${ticket.etkinlikAdi}" class="offer-ticket-image">
+                <div class="offer-details">
+                    <span class="offer-event-name">${ticket.etkinlikAdi}</span>
+                    <span class="offer-price">Teklif: ${offer.amount} ₺</span>
+                    <span class="offer-status ${statusClass}">${statusText}</span>
+                    <span class="offer-date">${new Date(offer.date).toLocaleDateString('tr-TR')}</span>
+                    <span class="offer-badge ${type}">${type === 'incoming' ? 'Gelen Teklif' : 'Gönderilen Teklif'}</span>
+                </div>
+                ${actions}
+            </div>
+        `;
+    }).join('');
+}
+
+// Teklif işleme fonksiyonu
+function handleOffer(offerId, action) {
+    let offers = JSON.parse(localStorage.getItem('offers')) || [];
+    const offerIndex = offers.findIndex(o => o.id === offerId);
+    
+    if (offerIndex === -1) return;
+    
+    offers[offerIndex].status = action === 'accept' ? 'accepted' : 'rejected';
+    localStorage.setItem('offers', JSON.stringify(offers));
+    
+    showSuccessMessage(`Teklif ${action === 'accept' ? 'kabul edildi' : 'reddedildi'}!`);
+    showOffers('incoming'); // Teklifleri yeniden yükle
+}
+
+// ESC tuşu ile modalı kapatma
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// Sayfa yüklendiğinde çalışacak fonksiyonları güncelle
+window.addEventListener('DOMContentLoaded', () => {
+    showAllTickets();
+    // Profil menüsüne tıklama olayı ekle
+    document.querySelector('.profile-menu').addEventListener('click', togglePanel);
+});
+
+// Modal HTML'ini oluşturma fonksiyonunu güncelle
+function createTicketModal(bilet) {
+    return `
+        <div class="modal" id="ticketModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${bilet.etkinlikAdi}</h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-image-container">
+                        <img src="${bilet.resim}" alt="${bilet.etkinlikAdi}" class="modal-image">
+                    </div>
+                    <div class="modal-details">
+                        <div class="detail-item">
+                            <span>Kategori:</span>
+                            <span>${bilet.kategori.charAt(0).toUpperCase() + bilet.kategori.slice(1)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Tarih:</span>
+                            <span>${new Date(bilet.tarih).toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Fiyat:</span>
+                            <span>${bilet.fiyat} ₺</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Satıcı:</span>
+                            <span>${bilet.userId === currentUserId ? 'Ben' : 'Diğer Kullanıcı'}</span>
+                        </div>
+                        ${bilet.userId !== currentUserId ? `
+                            <div class="offer-form">
+                                <h3>Teklif Ver</h3>
+                                <input type="number" id="offerAmount" placeholder="Teklif tutarını giriniz (₺)" min="1" step="1">
+                                <div class="modal-actions">
+                                    <button class="cancel-button" onclick="closeModal()">İptal</button>
+                                    <button class="offer-button" onclick="sendOffer(${bilet.id})">Teklif Gönder</button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                ${bilet.userId === currentUserId ? `
+                    <div class="ticket-offers-section">
+                        <h3 class="section-title">Bu Bilet İçin Teklifler</h3>
+                        <div class="offers-tabs">
+                            <button class="offers-tab active" onclick="showTicketOffers(${bilet.id}, 'incoming')">Gelen Teklifler</button>
+                            <button class="offers-tab" onclick="showTicketOffers(${bilet.id}, 'outgoing')">Gönderilen Teklifler</button>
+                        </div>
+                        <div class="offer-list" id="offersList">
+                            <!-- Teklifler buraya eklenecek -->
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// Bilet için teklifleri gösterme fonksiyonu
+function showTicketOffers(ticketId, type) {
+    showOffers(type, ticketId);
+}
+
+// Modal gösterme fonksiyonunu güncelle
+function showTicketDetails(bilet) {
+    const existingModal = document.getElementById('ticketModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', createTicketModal(bilet));
+    
+    const modal = document.getElementById('ticketModal');
+    modal.style.display = 'block';
+
+    // Eğer bilet sahibiyse, teklifleri göster
+    if (bilet.userId === currentUserId) {
+        showTicketOffers(bilet.id, 'incoming');
+    }
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+}
+
+// Modal kapatma fonksiyonu
+function closeModal() {
+    const modal = document.getElementById('ticketModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Teklif gönderme fonksiyonu
+function sendOffer(biletId) {
+    const offerAmount = document.getElementById('offerAmount').value;
+    
+    if (!offerAmount || offerAmount <= 0) {
+        showErrorMessage('Lütfen geçerli bir teklif tutarı giriniz!');
+        return;
+    }
+
+    // Teklifleri localStorage'dan al
+    let offers = JSON.parse(localStorage.getItem('offers')) || [];
+    
+    // Yeni teklif objesi oluştur
+    const newOffer = {
+        id: Date.now(),
+        ticketId: biletId,
+        fromUserId: currentUserId,
+        toUserId: getTicketOwner(biletId),
+        amount: parseFloat(offerAmount),
+        status: 'pending',
+        date: new Date().toISOString()
+    };
+
+    // Teklifi listeye ekle
+    offers.push(newOffer);
+    
+    // Teklifleri localStorage'a kaydet
+    localStorage.setItem('offers', JSON.stringify(offers));
+
+    showSuccessMessage(`Teklif başarıyla gönderildi! Teklif: ${offerAmount} ₺`);
+    closeModal();
+}
+
+// Bilet sahibini bulan yardımcı fonksiyon
+function getTicketOwner(ticketId) {
+    const tickets = JSON.parse(localStorage.getItem('biletler')) || [];
+    const ticket = tickets.find(t => t.id === ticketId);
+    return ticket ? ticket.userId : null;
+}
+
+// Profil panelini oluşturma fonksiyonu
+function createProfilePanel() {
+    return `
+        <div class="side-panel" id="sidePanel">
+            <div class="side-panel-header">
+                <h2>Profilim</h2>
+                <button class="close-panel" onclick="togglePanel()">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-header">
+                    <div class="profile-header-avatar">${currentUser ? currentUser.username.charAt(0).toUpperCase() : 'A'}</div>
+                    <div class="profile-header-info">
+                        <h3>${currentUser ? currentUser.username : 'Kullanıcı'}</h3>
+                        <p>@${currentUser ? currentUser.username : 'kullanici'}</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="ticketCount">0</div>
+                        <div class="stat-label">Biletlerim</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="offerCount">0</div>
+                        <div class="stat-label">Teklifler</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favoriteCount">0</div>
+                        <div class="stat-label">Favoriler</div>
+                    </div>
+                </div>
+
+                <div class="profile-sections">
+                    <div class="profile-section offers-section">
+                        <h3 class="section-title">Teklifler</h3>
+                        <div class="offers-tabs">
+                            <button class="offers-tab active" onclick="showOffers('incoming')">Gelen Teklifler</button>
+                            <button class="offers-tab" onclick="showOffers('outgoing')">Gönderilen Teklifler</button>
+                        </div>
+                        <div class="offer-list" id="offersList">
+                            <!-- Teklifler buraya eklenecek -->
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h3 class="section-title">Aktif Biletlerim</h3>
+                        <div class="tickets-grid" id="my-tickets-container">
+                            <!-- Kullanıcının kendi biletleri buraya eklenecek -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="logout-button" onclick="logout()">Çıkış Yap</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Panel açma/kapama fonksiyonu güncelleme
+function togglePanel() {
+    const profileModal = document.getElementById('profileModal');
+    
+    if (profileModal) {
+        if (!profileModal.classList.contains('active')) {
+            profileModal.classList.add('active');
+            updateProfileStats();
+            showOffers('incoming');
+            showMyTickets();
+        } else {
+            profileModal.classList.remove('active');
+        }
+    }
+}
+
+// Modal dışına tıklandığında kapatma
+document.addEventListener('click', function(e) {
+    const profileModal = document.getElementById('profileModal');
+    if (profileModal && e.target === profileModal) {
+        togglePanel();
+    }
+});
+
+// ESC tuşu ile modalı kapatma
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const profileModal = document.getElementById('profileModal');
+        if (profileModal && profileModal.classList.contains('active')) {
+            togglePanel();
+        }
+    }
+});
+
+// Profil istatistiklerini güncelleme
+function updateProfileStats() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const offers = JSON.parse(localStorage.getItem('offers')) || [];
+    
+    const ticketCount = biletler.filter(bilet => bilet.userId === currentUserId).length;
+    const offerCount = offers.filter(offer => 
+        offer.fromUserId === currentUserId || offer.toUserId === currentUserId
+    ).length;
+    const favoriteCount = favorites.length;
+
+    document.getElementById('ticketCount').textContent = ticketCount;
+    document.getElementById('offerCount').textContent = offerCount;
+    document.getElementById('favoriteCount').textContent = favoriteCount;
+} 
+     </script>
+    <script> 
+        // Kullanıcı yönetimi için gerekli değişkenler
+let currentUserId = generateUserId();
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+// Kullanıcı ID'si oluşturma
+function generateUserId() {
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+        userId = 'USER_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('userId', userId);
+    }
+    return userId;
+}
+
+// Kullanıcı bilgilerini gösterme
+function showUserInfo() {
+    const profileName = document.querySelector('.profile-name');
+    const profileHeaderInfo = document.querySelector('.profile-header-info h3');
+    
+    if (profileName) profileName.textContent = 'Kullanıcı';
+    if (profileHeaderInfo) profileHeaderInfo.textContent = 'Kullanıcı';
+}
+
+// Kullanıcının kendi biletlerini gösterme
+function showMyTickets() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const container = document.getElementById('my-tickets-container');
+    container.innerHTML = '';
+
+    const myTickets = biletler.filter(bilet => bilet.userId === currentUserId);
+    
+    myTickets.forEach(bilet => {
+        const biletHTML = createTicketCard(bilet, true);
+        container.innerHTML += biletHTML;
+    });
+}
+
+// Favori biletleri gösterme
+function showFavorites() {
+    const biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const container = document.getElementById('favorites-container');
+    container.innerHTML = '';
+
+    const favoriteTickets = biletler.filter(bilet => favorites.includes(bilet.id));
+    
+    favoriteTickets.forEach(bilet => {
+        const biletHTML = createTicketCard(bilet, false);
+        container.innerHTML += biletHTML;
+    });
+}
+
+// Bilet kartı oluşturma fonksiyonu
+function createTicketCard(bilet, isOwner) {
+    const isLiked = favorites.includes(bilet.id);
+    const deleteButton = isOwner ? `<button class="delete-button" onclick="biletSil(${bilet.id})">Bileti Sil</button>` : '';
+    const ownerLabel = `<div class="ticket-owner">${bilet.userId === currentUserId ? 'Benim Biletim' : 'Diğer Kullanıcı'}</div>`;
+    
+    return `
+        <div class="ticket-card">
+            ${ownerLabel}
+            <img src="${bilet.resim}" alt="${bilet.etkinlikAdi}">
+            <div class="ticket-info">
+                <h3>${bilet.etkinlikAdi}</h3>
+                <p>Kategori: ${bilet.kategori.charAt(0).toUpperCase() + bilet.kategori.slice(1)}</p>
+                <p>Tarih: ${new Date(bilet.tarih).toLocaleDateString('tr-TR')}</p>
+                <p>Fiyat: ${bilet.fiyat} ₺</p>
+            </div>
+            ${deleteButton}
+            <button class="like-button ${isLiked ? 'active' : ''}" onclick="toggleFavorite(${bilet.id})">
+                ${isLiked ? '❤️' : '🤍'}
+            </button>
+        </div>
+    `;
+}
+
+// Favori ekleme/çıkarma
+function toggleFavorite(biletId) {
+    const index = favorites.indexOf(biletId);
+    if (index === -1) {
+        favorites.push(biletId);
+    } else {
+        favorites.splice(index, 1);
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    biletleriGoster();
+    showFavorites();
+    showMyTickets();
+}
+
+// Bilet silme fonksiyonu (sadece kendi biletleri için)
+function biletSil(id) {
+    let biletler = JSON.parse(localStorage.getItem('biletler')) || [];
+    const bilet = biletler.find(b => b.id === id);
+    
+    if (bilet && bilet.userId === currentUserId) {
+        if (confirm('Bu bileti silmek istediğinizden emin misiniz?')) {
+            biletler = biletler.filter(b => b.id !== id);
+            localStorage.setItem('biletler', JSON.stringify(biletler));
+            biletleriGoster();
+            showMyTickets();
+            showFavorites();
+        }
+    } else {
+        alert('Bu bileti silme yetkiniz yok!');
+    }
+}
+
+// Tüm görünümleri güncelleme fonksiyonu
+function updateAllViews() {
+    showAllTickets();
+    showMyTickets();
+    showFavorites();
+}
+
+// Sayfa yüklendiğinde çalışacak fonksiyonlar
+window.addEventListener('DOMContentLoaded', () => {
+    showUserInfo();
+    updateAllViews();
+}); 
+    </script>
+</body>
+</html> 

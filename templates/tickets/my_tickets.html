@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Biletlerim - Etkinlik Takas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Biletlerim</h2>
+    
+    <div class="tickets-section">
+        <h3>Aktif Biletlerim</h3>
+        <div class="tickets-grid">
+            {% for ticket in tickets %}
+            <div class="ticket-card">
+                <div class="ticket-owner">Benim Biletim</div>
+                <img src="{{ ticket.resim.url }}" alt="{{ ticket.etkinlik_adi }}">
+                <div class="ticket-info">
+                    <h3>{{ ticket.etkinlik_adi }}</h3>
+                    <p>Kategori: {{ ticket.get_kategori_display }}</p>
+                    <p>Tarih: {{ ticket.tarih|date:"d.m.Y" }}</p>
+                    <p>Fiyat: {{ ticket.fiyat }} ₺</p>
+                </div>
+                <button class="delete-button" onclick="deleteTicket({{ ticket.id }})">Bileti Sil</button>
+            </div>
+            {% empty %}
+            <p class="no-tickets">Henüz biletiniz bulunmuyor.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="offers-section">
+        <h3>Teklifler</h3>
+        <div class="offers-tabs">
+            <button class="offers-tab active" onclick="showOffers('incoming')">Gelen Teklifler</button>
+            <button class="offers-tab" onclick="showOffers('outgoing')">Gönderilen Teklifler</button>
+        </div>
+
+        <div class="offer-list" id="incomingOffers">
+            {% for offer in incoming_offers %}
+            <div class="offer-item">
+                <img src="{{ offer.ticket.resim.url }}" alt="{{ offer.ticket.etkinlik_adi }}" class="offer-ticket-image">
+                <div class="offer-details">
+                    <span class="offer-event-name">{{ offer.ticket.etkinlik_adi }}</span>
+                    <span class="offer-price">Teklif: {{ offer.amount }} ₺</span>
+                    <span class="offer-status {{ offer.status }}">{{ offer.get_status_display }}</span>
+                    <span class="offer-date">{{ offer.created_at|date:"d.m.Y H:i" }}</span>
+                    <span class="offer-badge incoming">Gelen Teklif</span>
+                </div>
+                {% if offer.status == 'pending' %}
+                <div class="offer-actions">
+                    <button class="offer-action-btn offer-accept" onclick="handleOffer({{ offer.id }}, 'accept')">Kabul Et</button>
+                    <button class="offer-action-btn offer-reject" onclick="handleOffer({{ offer.id }}, 'reject')">Reddet</button>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="no-offers">Henüz gelen teklifiniz yok.</p>
+            {% endfor %}
+        </div>
+
+        <div class="offer-list" id="outgoingOffers" style="display: none;">
+            {% for offer in outgoing_offers %}
+            <div class="offer-item">
+                <img src="{{ offer.ticket.resim.url }}" alt="{{ offer.ticket.etkinlik_adi }}" class="offer-ticket-image">
+                <div class="offer-details">
+                    <span class="offer-event-name">{{ offer.ticket.etkinlik_adi }}</span>
+                    <span class="offer-price">Teklif: {{ offer.amount }} ₺</span>
+                    <span class="offer-status {{ offer.status }}">{{ offer.get_status_display }}</span>
+                    <span class="offer-date">{{ offer.created_at|date:"d.m.Y H:i" }}</span>
+                    <span class="offer-badge outgoing">Gönderilen Teklif</span>
+                </div>
+            </div>
+            {% empty %}
+            <p class="no-offers">Henüz gönderdiğiniz teklif yok.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showOffers(type) {
+    const incomingOffers = document.getElementById('incomingOffers');
+    const outgoingOffers = document.getElementById('outgoingOffers');
+    const tabs = document.querySelectorAll('.offers-tab');
+    
+    if (type === 'incoming') {
+        incomingOffers.style.display = 'block';
+        outgoingOffers.style.display = 'none';
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+    } else {
+        incomingOffers.style.display = 'none';
+        outgoingOffers.style.display = 'block';
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+    }
+}
+
+function handleOffer(offerId, action) {
+    if (confirm(action === 'accept' ? 'Teklifi kabul etmek istediğinizden emin misiniz?' : 'Teklifi reddetmek istediğinizden emin misiniz?')) {
+        window.location.href = `/handle-offer/${offerId}/${action}/`;
+    }
+}
+
+function deleteTicket(ticketId) {
+    if (confirm('Bu bileti silmek istediğinizden emin misiniz?')) {
+        window.location.href = `/delete-ticket/${ticketId}/`;
+    }
+}
+</script>
+{% endblock %} 
