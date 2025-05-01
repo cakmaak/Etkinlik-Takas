@@ -1,17 +1,167 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Giriş Yap - Etkinlik Takas{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-box">
-        <h2>Giriş Yap</h2>
-        <form method="post">
+        <div class="auth-header">
+            <h2>Giriş Yap</h2>
+            <p>Etkinlik Takas'a hoş geldiniz!</p>
+        </div>
+        
+        <form method="post" class="auth-form">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="submit-button">Giriş Yap</button>
+            <div class="form-group">
+                <label for="id_username">Kullanıcı Adı</label>
+                <input type="text" name="username" id="id_username" required 
+                       placeholder="Kullanıcı adınızı girin">
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">Şifre</label>
+                <input type="password" name="password" id="id_password" required 
+                       placeholder="Şifrenizi girin">
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <p>Kullanıcı adı veya şifre hatalı.</p>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="auth-button">Giriş Yap</button>
         </form>
-        <p class="auth-link">Hesabınız yok mu? <a href="{% url 'signup' %}">Kayıt Ol</a></p>
+
+        <div class="auth-footer">
+            <p>Hesabınız yok mu? <a href="{% url 'signup' %}">Kayıt Ol</a></p>
+        </div>
     </div>
 </div>
+
+<style>
+.auth-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.auth-box {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: #7f8c8d;
+    font-size: 1rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: 0.8rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.auth-button {
+    background: #3498db;
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #7f8c8d;
+}
+
+.auth-footer a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.error-message p {
+    margin: 0.3rem 0;
+}
+
+@media (max-width: 480px) {
+    .auth-box {
+        padding: 1.5rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>
 {% endblock %} 

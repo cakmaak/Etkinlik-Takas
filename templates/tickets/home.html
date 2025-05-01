@@ -53,8 +53,8 @@
                 {% if ticket.user == user %}
                 <button class="delete-button" onclick="deleteTicket({{ ticket.id }})">Bileti Sil</button>
                 {% else %}
-                <button class="like-button" onclick="toggleFavorite({{ ticket.id }})">
-                    {% if ticket in user.favorite_set.all %}
+                <button class="like-button" onclick="toggleFavorite({{ ticket.id }}, this)" data-favorite="{% if ticket.id in favorite_tickets %}true{% else %}false{% endif %}">
+                    {% if ticket.id in favorite_tickets %}
                     ❤️
                     {% else %}
                     🤍
@@ -93,6 +93,8 @@
 
 {% block extra_js %}
 <script>
+const csrfToken = '{{ csrf_token }}';
+
 function filterTickets(category) {
     window.location.href = `/?category=${category}`;
 }
@@ -103,8 +105,31 @@ function deleteTicket(ticketId) {
     }
 }
 
-function toggleFavorite(ticketId) {
-    window.location.href = `/toggle-favorite/${ticketId}/`;
+function toggleFavorite(ticketId, button) {
+    fetch(`/toggle-favorite/${ticketId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (data.is_favorite) {
+                button.innerHTML = '❤️';
+                button.setAttribute('data-favorite', 'true');
+            } else {
+                button.innerHTML = '🤍';
+                button.setAttribute('data-favorite', 'false');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Favoriye ekleme işlemi başarısız oldu. Lütfen tekrar deneyin.');
+    });
 }
 
 function showOfferModal(ticketId) {

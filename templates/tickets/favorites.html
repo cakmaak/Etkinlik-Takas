@@ -16,7 +16,7 @@
                 <p>Tarih: {{ favorite.ticket.tarih|date:"d.m.Y" }}</p>
                 <p>Fiyat: {{ favorite.ticket.fiyat }} ₺</p>
             </div>
-            <button class="like-button active" onclick="toggleFavorite({{ favorite.ticket.id }})">❤️</button>
+            <button class="like-button active" onclick="toggleFavorite({{ favorite.ticket.id }}, this)">❤️</button>
             {% if favorite.ticket.user != user %}
             <button class="offer-button" onclick="showOfferModal({{ favorite.ticket.id }})">Teklif Ver</button>
             {% endif %}
@@ -50,8 +50,39 @@
 
 {% block extra_js %}
 <script>
-function toggleFavorite(ticketId) {
-    window.location.href = `/toggle-favorite/${ticketId}/`;
+const csrfToken = '{{ csrf_token }}';
+
+function toggleFavorite(ticketId, button) {
+    fetch(`/toggle-favorite/${ticketId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (data.is_favorite) {
+                button.innerHTML = '❤️';
+            } else {
+                button.innerHTML = '🤍';
+                // Eğer favoriler sayfasındaysak, bileti listeden kaldır
+                if (window.location.pathname === '/favorites/') {
+                    button.closest('.ticket-card').remove();
+                    // Eğer hiç favori kalmadıysa mesaj göster
+                    if (document.querySelectorAll('.ticket-card').length === 0) {
+                        document.querySelector('.tickets-grid').innerHTML = '<p class="no-tickets">Henüz favori biletiniz bulunmuyor.</p>';
+                    }
+                }
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Favoriye ekleme işlemi başarısız oldu. Lütfen tekrar deneyin.');
+    });
 }
 
 function showOfferModal(ticketId) {
