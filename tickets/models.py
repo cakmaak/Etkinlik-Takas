@@ -23,16 +23,30 @@ class Ticket(models.Model):
     tarih = models.DateField()
     fiyat = models.DecimalField(max_digits=10, decimal_places=2)
     resim = models.ImageField(upload_to=upload_to_firebase)
+    resim_url = models.URLField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if self.resim:
-            # Firebase Storage'a yükle
-            bucket = storage.bucket()
-            blob = bucket.blob(self.resim.name)
-            blob.upload_from_filename(self.resim.path)
-            # Firebase Storage URL'ini al
-            self.resim_url = blob.public_url
+        # Önce normal kaydet
         super().save(*args, **kwargs)
+        
+        # Eğer resim varsa ve henüz Firebase'e yüklenmediyse
+        if self.resim and not self.resim_url:
+            try:
+                # Firebase Storage'a yükle
+                bucket = storage.bucket()
+                blob = bucket.blob(self.resim.name)
+                
+                # Dosyayı doğrudan bellekteki veriden yükle
+                self.resim.open('rb')
+                blob.upload_from_file(self.resim, content_type=self.resim.file.content_type)
+                self.resim.close()
+                
+                # Firebase Storage URL'ini al ve kaydet
+                self.resim_url = blob.public_url
+                # URL'i kaydetmek için tekrar save çağır
+                super().save(update_fields=['resim_url'])
+            except Exception as e:
+                print(f"Firebase yükleme hatası: {e}")
 
     def __str__(self):
         return self.etkinlik_adi

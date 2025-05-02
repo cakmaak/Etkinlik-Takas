@@ -9,6 +9,14 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 import os
+import firebase_admin
+from firebase_admin import credentials, storage
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate("etkinlik-takas-firebase-adminsdk-fbsvc-cf0f2da5c2.json")
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': "etkinlik-takas.appspot.com"
+    })
 
 def home(request):
     category = request.GET.get('category')
@@ -73,7 +81,7 @@ def add_ticket(request):
         resim = request.FILES.get('resim')
         
         if etkinlik_adi and kategori and tarih and fiyat and resim:
-            # Önce geçici olarak dosyayı kaydet
+            # Bilet oluştur ve kaydet
             ticket = Ticket(
                 user=request.user,
                 etkinlik_adi=etkinlik_adi,
@@ -83,10 +91,6 @@ def add_ticket(request):
                 resim=resim
             )
             ticket.save()  # Bu, Firebase Storage'a yükleyecek
-            
-            # Geçici dosyayı sil
-            if os.path.exists(ticket.resim.path):
-                os.remove(ticket.resim.path)
             
             return redirect('home')
     return render(request, 'tickets/add_ticket.html')
@@ -187,7 +191,7 @@ def signup_view(request):
             return redirect('signup')
 
         user = User.objects.create_user(username=username, email=email, password=password1)
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, 'Hesabınız başarıyla oluşturuldu!')
         return redirect('home')
 

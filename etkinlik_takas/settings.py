@@ -23,7 +23,9 @@ try:
     cred_path = os.path.join(BASE_DIR, 'etkinlik-takas-firebase-adminsdk-fbsvc-cf0f2da5c2.json')
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
+        firebase_admin.initialize_app(cred, {
+            'storageBucket': 'etkinlik-takas.appspot.com'
+        })
     else:
         print(f"Firebase kimlik bilgileri dosyası bulunamadı: {cred_path}")
 except Exception as e:
@@ -146,7 +148,7 @@ FIREBASE_CONFIG = {
     'apiKey': "AIzaSyDXciKCF6lW1JOavi_u2qHJcvR1BC5Hg_s",
     'authDomain': "etkinlik-takas.firebaseapp.com",
     'projectId': "etkinlik-takas",
-    'storageBucket': "etkinlik-takas.firebasestorage.app",
+    'storageBucket': "etkinlik-takas.appspot.com",
     'messagingSenderId': "578075120700",
     'appId': "1:578075120700:web:dd72cad04da4f08ba15f39",
     'measurementId': "G-MF0W75H1C9"
